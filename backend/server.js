@@ -57,11 +57,14 @@ const connectDB = async () => {
   // Debug: Check if MONGODB_URI is set
   console.log('🔍 MONGODB_URI check:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
   console.log('🔍 JWT_SECRET check:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
+  console.log('🔍 NODE_ENV check:', process.env.NODE_ENV || 'NOT SET');
   
   const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/';
   console.log('🔗 Attempting to connect to MongoDB...');
+  console.log('🔗 URI:', mongoUri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Hide credentials
   
   try {
+    console.log('⏳ Starting MongoDB connection...');
     await mongoose.connect(mongoUri, {
       maxPoolSize: 1,
       serverSelectionTimeoutMS: 10000,
@@ -74,7 +77,12 @@ const connectDB = async () => {
     console.log('🔗 Connection state:', mongoose.connection.readyState);
   } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
-    console.error('🔍 Full error:', err);
+    console.error('🔍 Full error details:', {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      statusCode: err.statusCode
+    });
     isConnected = false;
     
     // Don't exit process in serverless, just log the error
