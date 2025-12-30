@@ -16,6 +16,9 @@ const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const server = createServer(app);
+
+// Trust proxy for Vercel deployment
+app.set('trust proxy', true);
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -38,8 +41,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    console.log('📊 Database ready for operations');
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+  });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
