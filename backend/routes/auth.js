@@ -20,19 +20,23 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    // Try to connect to MongoDB if not connected
+    // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
+      console.log('🔄 Reconnecting to MongoDB...');
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/', {
         maxPoolSize: 1,
-        serverSelectionTimeoutMS: 3000,
+        serverSelectionTimeoutMS: 5000,
         bufferCommands: false
       });
     }
 
     // Check connection again
     if (mongoose.connection.readyState !== 1) {
+      console.error('❌ MongoDB still not connected');
       return res.status(503).json({ message: 'Database temporarily unavailable. Please try again.' });
     }
+
+    console.log('✅ MongoDB connected, proceeding with registration');
 
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]
@@ -47,6 +51,8 @@ router.post('/register', async (req, res) => {
 
     const token = generateToken(user._id);
 
+    console.log('✅ User registered successfully:', username);
+
     res.status(201).json({
       message: 'User registered successfully',
       token,
@@ -59,7 +65,7 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error.message);
+    console.error('❌ Registration error:', error.message);
     if (error.name === 'ValidationError') {
       return res.status(400).json({ message: 'Invalid data provided' });
     }
