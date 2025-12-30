@@ -92,3 +92,6 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// For Vercel deployment
+module.exports = app;
