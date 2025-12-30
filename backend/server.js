@@ -18,7 +18,15 @@ const app = express();
 const server = createServer(app);
 
 // Trust proxy for Vercel deployment
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again later.',
+  trustProxy: false
+});
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -27,12 +35,6 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 5000;
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP, please try again later.'
-});
 
 app.use(helmet());
 app.use(limiter);
