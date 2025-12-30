@@ -1,1 +1,2 @@
-{"version": 2, "builds": [{"src": "server.js", "use": "@vercel/node"}], "routes": [{"src": "/(.*)", "dest": "/server.js"}], "env": {"NODE_ENV": "production"}}
+﻿{"version": 2, "builds": [{"src": "server.js", "use": "@vercel/node"}], "routes": [{"src": "/(.*)", "dest": "/server.js"}], "env": {"NODE_ENV": "production", "MONGODB_URI": "mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/", "JWT_SECRET": "819807b2f88d30781da38311d250b87a"}}
+

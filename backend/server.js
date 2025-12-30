@@ -59,18 +59,22 @@ const connectDB = async () => {
   console.log('🔍 JWT_SECRET check:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
   console.log('🔍 NODE_ENV check:', process.env.NODE_ENV || 'NOT SET');
   
+  // Use the correct MongoDB URI from .env
   const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/';
   console.log('🔗 Attempting to connect to MongoDB...');
   console.log('🔗 URI:', mongoUri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Hide credentials
   
   try {
     console.log('⏳ Starting MongoDB connection...');
+    
     await mongoose.connect(mongoUri, {
       maxPoolSize: 1,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      bufferCommands: false
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
+      bufferCommands: false,
+      bufferMaxEntries: 0
     });
+    
     isConnected = true;
     console.log('✅ MongoDB connected successfully');
     console.log('📊 Database ready for operations');
@@ -81,7 +85,8 @@ const connectDB = async () => {
       name: err.name,
       message: err.message,
       code: err.code,
-      statusCode: err.statusCode
+      statusCode: err.statusCode,
+      readyState: mongoose.connection.readyState
     });
     isConnected = false;
     
