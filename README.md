@@ -1,5 +1,164 @@
 # UNEXA
 
+A social media application built with React Native (frontend) and Node.js/Express (backend) with MongoDB database.
+
+## Features
+
+- User authentication (register/login)
+- Real-time chat with Socket.io
+- Story sharing
+- Profile management
+- Image uploads with Cloudinary
+- Mobile-first responsive design
+
+## Project Structure
+
+```
+UNEXA/
+├── UNEXA/                 # React Native frontend
+│   ├── app/              # App screens and navigation
+│   ├── contexts/         # React contexts (Auth, etc.)
+│   ├── components/       # Reusable components
+│   └── package.json
+├── backend/              # Node.js backend API
+│   ├── models/          # MongoDB models
+│   ├── routes/          # API routes
+│   ├── middleware/      # Custom middleware
+│   └── server.js        # Main server file
+├── .gitignore
+└── README.md
+```
+
+## Prerequisites
+
+1. **Node.js** (v18 or higher)
+2. **MongoDB** (MongoDB Atlas for cloud)
+3. **React Native development environment**
+4. **Android SDK** (for mobile development)
+
+## Quick Start
+
+### 1. Backend Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Install dependencies
+npm install
+
+# Create .env file with your configuration
+cp .env.example .env
+
+# Start the server
+npm start
+```
+
+**Backend Configuration (.env):**
+```env
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+NODE_ENV=development
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 2. Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd UNEXA
+
+# Install dependencies
+npm install
+
+# Start the development server
+npx expo start
+```
+
+**API Configuration:**
+Update the API base URL in `contexts/AuthContext.tsx`:
+```typescript
+const API_BASE_URL = 'http://YOUR_COMPUTER_IP:5000/api';
+```
+
+Replace `YOUR_COMPUTER_IP` with your local network IP address.
+
+### 3. Mobile Testing
+
+#### Option A: Real Device
+1. Install **Expo Go** app on your mobile
+2. Connect both computer and mobile to same WiFi network
+3. Scan QR code from Expo CLI
+4. Test the application
+
+#### Option B: Android Emulator
+```bash
+# Start the emulator
+start_avd.bat
+
+# Run the app
+npx expo start --android
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+
+### Users
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update profile
+
+### Posts
+- `GET /api/posts` - Get all posts
+- `POST /api/posts` - Create new post
+- `PUT /api/posts/:id/like` - Like/unlike post
+
+### Chat
+- `GET /api/chat/rooms` - Get chat rooms
+- `POST /api/chat/rooms` - Create chat room
+- `GET /api/chat/rooms/:id/messages` - Get messages
+
+### Stories
+- `GET /api/stories` - Get stories
+- `POST /api/stories` - Create story
+
+## Development
+
+### Running Both Servers
+
+```bash
+# Terminal 1 - Backend
+cd backend
+npm start
+
+# Terminal 2 - Frontend
+cd UNEXA
+npx expo start
+```
+
+### Common Issues & Solutions
+
+**Port 5000 already in use:**
+```bash
+# Find and kill the process
+netstat -ano | findstr :5000
+taskkill /PID <PID> /F
+```
+
+**Network request failed:**
+- Check if backend server is running
+- Verify API_BASE_URL in frontend
+- Ensure both devices are on same WiFi network
+
+**Emulator not starting:**
+- Enable hardware virtualization in BIOS
+- Install Windows Hypervisor Platform (Windows)
+
 ## Virtual Device Setup (Without Android Studio)
 
 This project includes scripts to set up an Android virtual device using command-line tools only, without requiring Android Studio.
@@ -30,39 +189,6 @@ chmod +x setup_virtual_device.sh
 ./setup_virtual_device.sh
 ```
 
-### Manual Setup
-
-1. **Set Environment Variables**:
-   ```bash
-   # Windows
-   set ANDROID_HOME=%USERPROFILE%\AppData\Local\Android\Sdk
-   set PATH=%PATH%;%ANDROID_HOME%\tools;%ANDROID_HOME%\tools\bin;%ANDROID_HOME%\platform-tools
-
-   # Linux/macOS
-   export ANDROID_HOME=$HOME/Android/Sdk
-   export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
-   ```
-
-2. **Install Required Components**:
-   ```bash
-   sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-   ```
-
-3. **Download System Image**:
-   ```bash
-   sdkmanager "system-images;android-33;google_apis;x86_64"
-   ```
-
-4. **Create Virtual Device**:
-   ```bash
-   avdmanager create avd -n "UNEXA_Device" -k "system-images;android-33;google_apis;x86_64" -d "pixel_4" --force
-   ```
-
-5. **Start Emulator**:
-   ```bash
-   emulator -avd "UNEXA_Device"
-   ```
-
 ### Device Configuration
 
 The virtual device is configured with:
@@ -73,47 +199,33 @@ The virtual device is configured with:
 - **Storage**: 6GB
 - **Screen**: 1080 x 2280, 440dpi
 
-### Common Commands
+## Technologies Used
 
-```bash
-# List available devices
-emulator -list-avds
+### Frontend
+- React Native
+- Expo
+- React Navigation
+- Axios
+- AsyncStorage
 
-# Start device with specific options
-emulator -avd UNEXA_Device -no-window -no-audio
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- Socket.io
+- JWT
+- Bcrypt
+- Cloudinary
 
-# Delete device
-avdmanager delete avd -n UNEXA_Device
+## Contributing
 
-# Install APK
-adb install your-app.apk
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-# View device logs
-adb logcat
-```
+## License
 
-### Troubleshooting
-
-**Emulator not starting**:
-- Ensure hardware virtualization is enabled in BIOS
-- Check if Windows Hypervisor Platform is installed (Windows)
-- Verify KVM is installed (Linux)
-
-**SDK not found**:
-- Verify ANDROID_HOME environment variable is set correctly
-- Ensure command-line tools are in your PATH
-
-**Permission denied** (Linux/macOS):
-```bash
-chmod +x setup_virtual_device.sh
-```
-
-### Files Included
-
-- `setup_virtual_device.bat` - Windows setup script
-- `setup_virtual_device.sh` - Linux/macOS setup script
-- `avd_config.ini` - Device configuration file
-
-## Project Structure
-
-[Add your project structure description here]
+This project is licensed under the MIT License.
