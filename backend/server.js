@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 app.use(limiter);
 app.use(cors({
-  origin: ['https://unexa-wine.vercel.app', 'https://unexa-enh6gbud0-krishnas-projects-b05ee8b1.vercel.app', 'http://localhost:3000'],
+  origin: "*",
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
