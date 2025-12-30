@@ -45,19 +45,37 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000,
-  bufferCommands: false,
-  bufferMaxEntries: 0
-})
-  .then(() => {
+// MongoDB connection for serverless environment
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  
+  // Debug: Check if MONGODB_URI is set
+  console.log('🔍 MONGODB_URI check:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
+  console.log('🔍 JWT_SECRET check:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
+  
+  const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/';
+  
+  try {
+    await mongoose.connect(mongoUri, {
+      maxPoolSize: 1,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
+      bufferMaxEntries: 0
+    });
+    isConnected = true;
     console.log('✅ MongoDB connected successfully');
     console.log('📊 Database ready for operations');
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
-    console.log('⚠️ Continuing without database connection...');
-  });
+    isConnected = false;
+  }
+};
+
+// Connect to database
+connectDB();
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

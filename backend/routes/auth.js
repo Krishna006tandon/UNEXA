@@ -20,9 +20,18 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    // Check if MongoDB is connected
+    // Try to connect to MongoDB if not connected
     if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: 'Database unavailable. Please try again later.' });
+      await mongoose.connect(process.env.MONGODB_URI, {
+        maxPoolSize: 1,
+        serverSelectionTimeoutMS: 3000,
+        bufferCommands: false
+      });
+    }
+
+    // Check connection again
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database temporarily unavailable. Please try again.' });
     }
 
     const existingUser = await User.findOne({
