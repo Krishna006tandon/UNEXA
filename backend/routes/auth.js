@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
 
     // Try to connect to MongoDB if not connected
     if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(process.env.MONGODB_URI, {
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/', {
         maxPoolSize: 1,
         serverSelectionTimeoutMS: 3000,
         bufferCommands: false
