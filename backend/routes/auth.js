@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 
@@ -17,6 +18,11 @@ router.post('/register', async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database unavailable. Please try again later.' });
     }
 
     const existingUser = await User.findOne({
@@ -44,8 +50,14 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Registration error:', error.message);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Invalid data provided' });
+    }
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(503).json({ message: 'Database error. Please try again.' });
+    }
+    res.status(500).json({ message: 'Server error during registration' });
   }
 });
 
@@ -53,17 +65,22 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('Login attempt:', { email, body: req.body });
+
     if (!email || !password) {
+      console.log('Missing credentials:', { email: !!email, password: !!password });
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('Password mismatch for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
@@ -73,6 +90,7 @@ router.post('/login', async (req, res) => {
 
     const token = generateToken(user._id);
 
+    console.log('Login successful for user:', user.username);
     res.json({
       message: 'Login successful',
       token,

@@ -39,19 +39,24 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 app.use(limiter);
 app.use(cors({
-  origin: ['https://unexa-wine.vercel.app', 'http://localhost:3000'],
+  origin: ['https://unexa-wine.vercel.app', 'https://unexa-enh6gbud0-krishnas-projects-b05ee8b1.vercel.app', 'http://localhost:3000'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000,
+  bufferCommands: false,
+  bufferMaxEntries: 0
+})
   .then(() => {
     console.log('✅ MongoDB connected successfully');
     console.log('📊 Database ready for operations');
   })
   .catch((err) => {
-    console.error('❌ MongoDB connection error:', err);
+    console.error('❌ MongoDB connection error:', err.message);
+    console.log('⚠️ Continuing without database connection...');
   });
 
 app.use('/api/auth', authRoutes);
@@ -63,6 +68,15 @@ app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'UNEXA Backend Server is running!' });
+});
+
+// Handle favicon requests to prevent 404 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
+app.get('/favicon.png', (req, res) => {
+  res.status(204).end();
 });
 
 const activeUsers = new Map();
