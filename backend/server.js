@@ -78,8 +78,16 @@ async function connectDB() {
   }
 }
 
-// Connect to database
-connectDB().catch(err => console.error('Initial DB connection failed:', err));
+// Connect to database on each request for serverless
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('❌ DB connection error:', err);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
