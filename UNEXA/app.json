@@ -2,7 +2,7 @@
   "expo": {
     "name": "UNEXA",
     "slug": "UNEXA",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "unexa",
@@ -44,6 +44,12 @@
       "eas": {
         "projectId": "6de9462d-84eb-4e3c-aaca-a32b777483aa"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6de9462d-84eb-4e3c-aaca-a32b777483aa"
     }
   }
 }
