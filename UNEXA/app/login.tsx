@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  LinearGradient,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,8 +57,10 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue to UNEXA</Text>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logo}>UNEXA</Text>
+              <Text style={styles.tagline}>Connect. Share. Inspire.</Text>
+            </View>
           </View>
 
           <View style={styles.form}>
@@ -105,9 +108,16 @@ export default function LoginScreen() {
               onPress={handleLogin}
               disabled={isLoading}
             >
-              <Text style={styles.loginButtonText}>
-                {isLoading ? 'Signing In...' : 'Sign In'}
-              </Text>
+              <LinearGradient
+                colors={isLoading ? ['#ccc', '#999'] : ['#FF6B6B', '#4ECDC4']}
+                style={styles.gradientButton}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.loginButtonText}>
+                  {isLoading ? 'Signing In...' : 'Sign In'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <View style={styles.divider}>
@@ -137,7 +147,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f9fa',
   },
   keyboardView: {
     flex: 1,
@@ -152,16 +162,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+  logoContainer: {
+    alignItems: 'center',
   },
-  subtitle: {
-    fontSize: 16,
+  logo: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: '#FF6B6B',
+    marginBottom: 8,
+    letterSpacing: 2,
+  },
+  tagline: {
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
+    fontStyle: 'italic',
   },
   form: {
     marginBottom: 32,
@@ -169,12 +184,19 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    backgroundColor: 'white',
+    borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   inputIcon: {
     marginRight: 12,
@@ -192,15 +214,26 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
-    color: '#007AFF',
+    color: '#FF6B6B',
     fontSize: 14,
+    fontWeight: '600',
   },
   loginButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
     marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  gradientButton: {
+    paddingVertical: 16,
+    alignItems: 'center',
   },
   loginButtonDisabled: {
     backgroundColor: '#ccc',
@@ -229,10 +262,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
+    backgroundColor: 'white',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   socialButtonText: {
     marginLeft: 12,
@@ -249,7 +289,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signUpText: {
-    color: '#007AFF',
+    color: '#FF6B6B',
     fontSize: 14,
     fontWeight: '600',
   },

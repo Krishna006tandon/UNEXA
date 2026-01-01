@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   Alert,
+  LinearGradient,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -160,26 +161,54 @@ export default function HomeScreen() {
 
       <View style={styles.postActions}>
         <View style={styles.postActionsLeft}>
-          <TouchableOpacity onPress={() => toggleLike(item.id)}>
-            <Ionicons
-              name={item.isLiked ? 'heart' : 'heart-outline'}
-              size={24}
-              color={item.isLiked ? '#E1306C' : '#333'}
-            />
+          <TouchableOpacity onPress={() => toggleLike(item.id)} style={styles.actionButton}>
+            <LinearGradient
+              colors={item.isLiked ? ['#FF6B6B', '#FF8E53'] : ['#666', '#999']}
+              style={styles.iconGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Ionicons
+                name={item.isLiked ? 'heart' : 'heart-outline'}
+                size={24}
+                color="white"
+              />
+            </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="chatbubble-outline" size={24} color="#333" />
+          <TouchableOpacity style={styles.actionButton}>
+            <LinearGradient
+              colors={['#4ECDC4', '#44A08D']}
+              style={styles.iconGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Ionicons name="chatbubble-outline" size={24} color="white" />
+            </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="paper-plane-outline" size={24} color="#333" />
+          <TouchableOpacity style={styles.actionButton}>
+            <LinearGradient
+              colors={['#667EEA', '#764BA2']}
+              style={styles.iconGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Ionicons name="paper-plane-outline" size={24} color="white" />
+            </LinearGradient>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => toggleSave(item.id)}>
-          <Ionicons
-            name={item.isSaved ? 'bookmark' : 'bookmark-outline'}
-            size={24}
-            color="#333"
-          />
+        <TouchableOpacity onPress={() => toggleSave(item.id)} style={styles.actionButton}>
+          <LinearGradient
+            colors={item.isSaved ? ['#FFD93D', '#FF6B6B'] : ['#999', '#666']}
+            style={styles.iconGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Ionicons
+              name={item.isSaved ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color="white"
+            />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
@@ -203,16 +232,18 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>UNEXA</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>UNEXA</Text>
+        </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity>
-            <Ionicons name="add-circle-outline" size={24} color="#333" />
+          <TouchableOpacity style={styles.headerButton}>
+            <Ionicons name="add-circle-outline" size={24} color="#FF6B6B" />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={24} color="#333" />
+          <TouchableOpacity style={styles.headerButton}>
+            <Ionicons name="heart-outline" size={24} color="#FF6B6B" />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="paper-plane-outline" size={24} color="#333" />
+          <TouchableOpacity style={styles.headerButton}>
+            <Ionicons name="paper-plane-outline" size={24} color="#FF6B6B" />
           </TouchableOpacity>
         </View>
       </View>
@@ -252,17 +283,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#dbdbdb',
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  headerLeft: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    fontFamily: 'Instagram Sans',
+    color: '#FF6B6B',
+    letterSpacing: 1,
   },
   headerActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 20,
+  },
+  headerButton: {
+    padding: 4,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
   },
   content: {
     flex: 1,
@@ -270,7 +317,15 @@ const styles = StyleSheet.create({
   storiesContainer: {
     backgroundColor: 'white',
     borderBottomWidth: 0.5,
-    borderBottomColor: '#dbdbdb',
+    borderBottomColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   storiesList: {
     paddingHorizontal: 8,
@@ -281,16 +336,24 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   storyRing: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 2,
-    borderColor: '#E1306C',
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 3,
+    borderColor: '#FF6B6B',
     padding: 2,
+    shadowColor: '#FF6B6B',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
   },
   myStoryRing: {
-    borderColor: '#E1306C',
-    borderWidth: 2,
+    borderColor: '#FF6B6B',
+    borderWidth: 3,
   },
   storyRingViewed: {
     borderColor: '#dbdbdb',
@@ -306,14 +369,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#0095f6',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    backgroundColor: '#4ECDC4',
+    borderRadius: 12,
+    width: 22,
+    height: 22,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   storyUsername: {
     fontSize: 12,
@@ -356,11 +427,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   postActionsLeft: {
     flexDirection: 'row',
     gap: 16,
+  },
+  actionButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  iconGradient: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
   },
   postStats: {
     paddingHorizontal: 12,
