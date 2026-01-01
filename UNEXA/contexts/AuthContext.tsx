@@ -24,7 +24,7 @@ interface AuthContextType extends AuthState {
   logout: () => void;
 }
 
-const API_BASE_URL = 'https://backend-298okiey8-krishnas-projects-b05ee8b1.vercel.app/api';
+const API_BASE_URL = 'https://backend-4c7p3gtd0-krishnas-projects-b05ee8b1.vercel.app/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
