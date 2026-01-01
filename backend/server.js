@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -15,7 +13,6 @@ const storyRoutes = require('./routes/stories');
 const uploadRoutes = require('./routes/upload');
 
 const app = express();
-const server = createServer(app);
 
 // Trust proxy for Vercel deployment
 app.set('trust proxy', 1);
@@ -27,15 +24,6 @@ const limiter = rateLimit({
   trustProxy: false
 });
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-
 app.use(helmet());
 app.use(limiter);
 app.use(cors({
@@ -45,57 +33,53 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection for serverless environment
-let isConnected = false;
+// MongoDB connection for serverless environment (Vercel-safe)
+let cached = global.mongoose;
 
-const connectDB = async () => {
-  if (isConnected) {
-    console.log('🔄 MongoDB already connected');
-    return;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function connectDB() {
+  if (cached.conn) {
+    console.log('🔄 Using cached MongoDB connection');
+    return cached.conn;
   }
-  
-  // Debug: Check if MONGODB_URI is set
-  console.log('🔍 MONGODB_URI check:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
-  console.log('🔍 JWT_SECRET check:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
-  console.log('🔍 NODE_ENV check:', process.env.NODE_ENV || 'NOT SET');
-  
-  // Use the correct MongoDB URI from .env
-  const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/';
-  console.log('🔗 Attempting to connect to MongoDB...');
-  console.log('🔗 URI:', mongoUri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Hide credentials
-  
-  try {
-    console.log('⏳ Starting MongoDB connection...');
+
+  if (!cached.promise) {
+    console.log('🔍 MONGODB_URI check:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
+    console.log('🔍 JWT_SECRET check:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
     
-    await mongoose.connect(mongoUri, {
-      maxPoolSize: 1,
+    const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://UNEXA:UNEXA@unexa.zaxa9nd.mongodb.net/';
+    console.log('🔗 Attempting to connect to MongoDB...');
+    console.log('🔗 URI:', mongoUri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
+
+    cached.promise = mongoose.connect(mongoUri, {
+      bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 30000,
-      bufferCommands: false
+      maxPoolSize: 1
+    }).then(mongoose => {
+      console.log('✅ MongoDB connected successfully');
+      return mongoose;
+    }).catch(err => {
+      console.error('❌ MongoDB connection error:', err.message);
+      cached.promise = null;
+      throw err;
     });
-    
-    isConnected = true;
-    console.log('✅ MongoDB connected successfully');
-    console.log('📊 Database ready for operations');
-    console.log('🔗 Connection state:', mongoose.connection.readyState);
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.error('🔍 Full error details:', {
-      name: err.name,
-      message: err.message,
-      code: err.code,
-      statusCode: err.statusCode,
-      readyState: mongoose.connection.readyState
-    });
-    isConnected = false;
-    
-    // Don't exit process in serverless, just log the error
-    console.log('⚠️ Will retry connection on next request');
   }
-};
 
-// Connect to database immediately
-connectDB();
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB:', err.message);
+    throw err;
+  }
+}
+
+// Connect to database
+connectDB().catch(err => console.error('Initial DB connection failed:', err));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -105,7 +89,7 @@ app.use('/api/stories', storyRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ message: 'UNEXA Backend Server is running!' });
+  res.json({ status: "UNEXA backend running on Vercel 🚀" });
 });
 
 // Handle favicon requests to prevent 404 errors
@@ -117,46 +101,5 @@ app.get('/favicon.png', (req, res) => {
   res.status(204).end();
 });
 
-const activeUsers = new Map();
-
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  socket.on('join_room', (roomId) => {
-    socket.join(roomId);
-    console.log(`User ${socket.id} joined room ${roomId}`);
-  });
-
-  socket.on('send_message', (data) => {
-    io.to(data.roomId).emit('receive_message', data);
-  });
-
-  socket.on('typing', (data) => {
-    socket.to(data.roomId).emit('user_typing', data);
-  });
-
-  socket.on('stop_typing', (data) => {
-    socket.to(data.roomId).emit('user_stop_typing', data);
-  });
-
-  socket.on('user_online', (userId) => {
-    activeUsers.set(userId, socket.id);
-    io.emit('online_users', Array.from(activeUsers.keys()));
-  });
-
-  socket.on('disconnect', () => {
-    const userId = [...activeUsers.entries()].find(([_, id]) => id === socket.id)?.[0];
-    if (userId) {
-      activeUsers.delete(userId);
-      io.emit('online_users', Array.from(activeUsers.keys()));
-    }
-    console.log('User disconnected:', socket.id);
-  });
-});
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// For Vercel deployment
+// For Vercel deployment - NO server.listen(), NO socket.io
 module.exports = app;
