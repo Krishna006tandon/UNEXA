@@ -71,8 +71,7 @@ const connectDB = async () => {
       maxPoolSize: 1,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 30000,
-      bufferCommands: false,
-      bufferMaxEntries: 0
+      bufferCommands: false
     });
     
     isConnected = true;
